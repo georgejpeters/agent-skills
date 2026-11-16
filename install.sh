@@ -14,9 +14,11 @@ DIR=${AGENT_SKILLS_DIR:-$HOME/.agent-skills}
 MARKER="# agent-skills (managed by install.sh)"
 
 if [[ -d $DIR/.git ]]; then
-  git -C "$DIR" pull -q --ff-only && echo "updated $DIR"
+  git -C "$DIR" pull -q --ff-only || { echo "git pull failed in $DIR" >&2; exit 1; }
+  echo "updated $DIR"
 else
-  git clone -q "$REPO_URL" "$DIR" && echo "cloned into $DIR"
+  git clone -q "$REPO_URL" "$DIR" || { echo "git clone of $REPO_URL failed" >&2; exit 1; }
+  echo "cloned into $DIR"
 fi
 
 plugins=${AGENT_SKILLS_PLUGINS:-$(cd "$DIR/plugins" && ls)}
