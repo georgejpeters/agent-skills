@@ -46,7 +46,7 @@ uv run --no-project --with numpy --with pandas python plugins/quant/examples/pra
 
 A synthetic league with xG and bookmaker odds, walked from data checks through a walk-forward
 model, scoring against the market, calibration and betting ROI with confidence intervals, to a
-verdict. `--csv` writes the data out to practise on.
+verdict. `--csv` writes the data out to practise on, and [drills.md](plugins/quant/examples/drills.md) has timed exercises built on it.
 
 ## Tests
 
