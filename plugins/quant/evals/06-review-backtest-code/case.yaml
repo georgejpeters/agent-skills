@@ -1,0 +1,29 @@
+schema_version: "1.0"
+name: review-backtest-code
+description: Realistic shape - the artefacts are in the code and data notes, not in the prompt.
+context:
+  scaffold_script: setup.sh
+execution:
+  prompt: |
+    research/backtest.py says the strategy made +14% ROI over 2,000 bets. I'm about to put real
+    money on it. Is that number trustworthy? Review the code and tell me what you'd fix first.
+  max_turns: 15
+  timeout_seconds: 420
+  allowed_tools: [Skill, Read, Grep, Glob]
+runs: 3
+graders:
+  - type: llm
+    name: finds-the-artefacts
+    weight: 3
+    focus: last_message
+    criteria: |
+      The script has these real problems. Count how many the answer identifies (wording may differ):
+      A. Outcome definition mismatch: SoT comes from the provider shot map's is_on_target, but books
+         settle on official Opta stats; shot maps can count shots (e.g. blocked ones) Opta does not.
+      B. Look-ahead universe: filtering on minutes >= 60 uses information known only after the match.
+      C. Price timing: the "final snapshot" can be in-play / post-kick-off (snapshots run until
+         settlement); must use the last pre-kick-off price (ts < kickoff).
+      D. Feature leakage: the expanding mean includes the current match's own SoT (no shift).
+      E. Random train_test_split on time-ordered data (should be chronological / walk-forward).
+      PASS only if the answer identifies at least 4 of A-E.
+  - {type: regex, name: mentions-kickoff-timing, pattern: "kick-?off|in-?play|pre-?match|before the (match|game)", flags: i}

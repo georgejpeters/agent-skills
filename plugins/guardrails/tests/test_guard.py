@@ -51,6 +51,7 @@ BASH = [
     (ALLOW, "docker compose config --services", {}),
     (ALLOW, "docker inspect --format '{{.State.Health.Status}}' web", {}),
     (ALLOW, "cat README.md", {}),
+    (ALLOW, "python3 ~/.agent-skills/plugins/guardrails/hooks/env_peek.py .env DATABASE_URL", {}),
 ]
 
 READ = [
@@ -70,6 +71,23 @@ def decide(event):
     return json.loads(out)["hookSpecificOutput"]["permissionDecision"] if out else ALLOW
 
 
+def test_env_peek():
+    sys.path.insert(0, str(GUARD.parent))
+    from env_peek import peek
+    cases = {
+        "DATABASE_URL=postgres://app:hunter2@db:5432/x": "DATABASE_URL=postgres://app:<masked>@db:5432/x",
+        "STRIPE_KEY=sk_live_abc": "STRIPE_KEY=<masked, 11 chars>",
+        "export API_TOKEN='t0k3n'": "API_TOKEN=<masked, 5 chars>",
+        "WEBHOOK=https://hooks.example.com/services/T0A1B2C3D4E5F6G7H8I9": "WEBHOOK=https://hooks.example.com/services/<masked, 20 chars>",
+        "LOG_LEVEL=info": "LOG_LEVEL=info",
+        "# comment": "# comment",
+    }
+    bad = [(k, peek(k), v) for k, v in cases.items() if peek(k) != v]
+    for line, got, want in bad:
+        print(f"FAIL env_peek {line!r}: got {got!r} want {want!r}")
+    return len(cases) - len(bad), len(cases)
+
+
 def main():
     cases = [(want, {"tool_name": "Bash", "tool_input": {"command": cmd, **extra}}, cmd)
              for want, cmd, extra in BASH]
@@ -80,7 +98,9 @@ def main():
         if got != want:
             failed += 1
             print(f"FAIL want={want} got={got}: {label}")
-    print(f"{len(cases) - failed}/{len(cases)} passed")
+    ok, n = test_env_peek()
+    total, failed = len(cases) + n, failed + n - ok
+    print(f"{total - failed}/{total} passed")
     sys.exit(1 if failed else 0)
 
 

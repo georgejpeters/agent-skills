@@ -3,3 +3,5 @@ dist/
 __pycache__/
 .DS_Store
 matches.csv
+plugins/*/evals*/results/
+docs/eval-history/*-results/

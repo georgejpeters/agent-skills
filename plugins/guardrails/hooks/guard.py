@@ -32,6 +32,7 @@ LOCAL_LONG = re.compile(
     r"|\bdocker\s+build\b"
 )
 QUICK = re.compile(r"#\s*quick:")
+PEEK = "python3 " + os.path.join(os.path.dirname(os.path.abspath(__file__)), "env_peek.py")
 FOREGROUND_TIMEOUT_MS = 120_000
 
 SECRET_PATH = re.compile(
@@ -71,15 +72,16 @@ def deny(reason):
 def check_read(tool_input):
     path = tool_input.get("file_path", "")
     if SECRET_PATH.search(" " + os.path.basename(path)):
-        deny(f"{path} holds secrets and must not be read into the transcript. "
-             "List key names with `cut -d= -f1 <file>`; test one value with `grep -q '^KEY=' <file>`.")
+        deny(f"{path} holds secrets and must not be read into the transcript. To see its settings "
+             f"with secrets masked (hosts, ports and flags stay visible), run: {PEEK} {path} [KEY ...]")
 
 
 def check_secrets(cmd):
     if SECRET_PATH.search(cmd) and READER.search(cmd) and not KEYS_ONLY.search(cmd):
-        deny("this would print a secrets file (.env, key, credentials) into the transcript. "
-             "List key names with `cut -d= -f1 <file>`, test a value with `grep -q '^KEY=' <file>`, "
-             "or edit in place with `sed -i`.")
+        deny("this would print a secrets file (.env, key, credentials) into the transcript. To see "
+             f"its settings with secrets masked (hosts, ports and flags stay visible), run: {PEEK} "
+             "<file> [KEY ...]. To move the file elsewhere, copy it (cp/scp) without printing it; to "
+             "change a value, edit in place with `sed -i`.")
     for pattern, why in OTHER_LEAKS:
         if pattern.search(cmd):
             deny(why)

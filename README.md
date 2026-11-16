@@ -13,6 +13,13 @@ plain Markdown any assistant can read.
 Plus [AGENTS.md](AGENTS.md): the working rules (never block, never expose secrets, evidence over
 confidence), imported into every machine's global agent instructions.
 
+## Measured, not assumed
+
+Each plugin ships an eval suite run with and without the plugin (`claude plugin eval --ablation
+with-without`). The guardrails plugin shows a clear lift; the quant skills show none over a
+frontier model, which is itself the useful finding. See [docs/evals.md](docs/evals.md). The
+working method behind all of this is in [docs/playbook.md](docs/playbook.md).
+
 ## Install on a machine
 
 ```bash
@@ -51,7 +58,8 @@ verdict. `--csv` writes the data out to practise on, and [drills.md](plugins/qua
 ## Tests
 
 ```bash
-python3 -I plugins/guardrails/tests/test_guard.py
+python3 -I plugins/guardrails/tests/test_guard.py        # hook decisions + env_peek masking
+claude plugin eval plugins/guardrails --runs 3 --ablation with-without --scaffold --allow-tools Bash --judge-model sonnet
 uv run --no-project --with numpy python plugins/quant/tests/test_quantkit.py
 claude plugin validate . && claude plugin validate plugins/<name>
 ```
