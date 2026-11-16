@@ -1,0 +1,28 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "agent-skills",
+  "description": "Portable agent skills, guardrails and working rules.",
+  "owner": {
+    "name": "georgejpeters"
+  },
+  "plugins": [
+    {
+      "name": "guardrails",
+      "description": "Hook that blocks long foreground jobs (remote ssh jobs, bulk copies, builds, raised timeouts) and commands that would print secrets.",
+      "source": "./plugins/guardrails",
+      "category": "productivity"
+    },
+    {
+      "name": "remote-jobs",
+      "description": "Run long jobs on remote machines detached, with logs, memory caps and a background waiter.",
+      "source": "./plugins/remote-jobs",
+      "category": "productivity"
+    },
+    {
+      "name": "quant",
+      "description": "Football/betting quant toolkit: score models (Poisson, Dixon-Coles), market maths (de-vig, EV, Kelly, CLV), validation (walk-forward, calibration, CIs) and an edge-research checklist, with a tested numpy library.",
+      "source": "./plugins/quant",
+      "category": "data"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "name": "remote-jobs",
+  "version": "0.1.0",
+  "description": "Run long jobs on remote machines detached, with logs, memory caps and a background waiter.",
+  "author": {
+    "name": "georgejpeters"
+  },
+  "license": "MIT"
+}

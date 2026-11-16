@@ -1,0 +1,9 @@
+{
+  "name": "guardrails",
+  "version": "0.1.0",
+  "description": "Hook that blocks long foreground jobs (remote ssh jobs, bulk copies, builds, raised timeouts) and commands that would print secrets.",
+  "author": {
+    "name": "georgejpeters"
+  },
+  "license": "MIT"
+}

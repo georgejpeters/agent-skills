@@ -1,0 +1,17 @@
+{
+  "description": "Blocks long-running foreground commands and commands that would print secrets.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -I \"${CLAUDE_PLUGIN_ROOT}/hooks/guard.py\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

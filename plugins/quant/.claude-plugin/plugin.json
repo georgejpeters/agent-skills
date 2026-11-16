@@ -1,0 +1,9 @@
+{
+  "name": "quant",
+  "version": "0.1.0",
+  "description": "Football/betting quant toolkit: score models (Poisson, Dixon-Coles), market maths (de-vig, EV, Kelly, CLV), validation (walk-forward, calibration, CIs) and an edge-research checklist, with a tested numpy library.",
+  "author": {
+    "name": "georgejpeters"
+  },
+  "license": "MIT"
+}
