@@ -27,7 +27,7 @@ Claude Code only, without cloning:
 
 ```bash
 claude plugin marketplace add georgejpeters/agent-skills
-claude plugin install quant@agent-skills
+claude plugin install quant@gjp-skills
 ```
 
 ## Use without Claude Code

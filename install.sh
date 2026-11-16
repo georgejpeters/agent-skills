@@ -12,6 +12,7 @@ set -euo pipefail
 REPO_URL=${AGENT_SKILLS_REPO:-https://github.com/georgejpeters/agent-skills}
 DIR=${AGENT_SKILLS_DIR:-$HOME/.agent-skills}
 MARKER="# agent-skills (managed by install.sh)"
+MARKETPLACE=gjp-skills
 
 if [[ -d $DIR/.git ]]; then
   git -C "$DIR" pull -q --ff-only || { echo "git pull failed in $DIR" >&2; exit 1; }
@@ -24,13 +25,17 @@ fi
 plugins=${AGENT_SKILLS_PLUGINS:-$(cd "$DIR/plugins" && ls)}
 
 if command -v claude >/dev/null; then
-  if claude plugin marketplace list 2>/dev/null | grep -q 'agent-skills'; then
-    claude plugin marketplace update agent-skills >/dev/null && echo "marketplace refreshed"
+  if claude plugin marketplace list 2>/dev/null | grep -q "$MARKETPLACE"; then
+    claude plugin marketplace update "$MARKETPLACE" >/dev/null || { echo "marketplace update failed" >&2; exit 1; }
+    echo "marketplace refreshed"
   else
-    claude plugin marketplace add "$DIR" >/dev/null && echo "marketplace added"
+    claude plugin marketplace add "$DIR" || { echo "marketplace add failed" >&2; exit 1; }
   fi
+  installed=$(claude plugin list 2>/dev/null || true)
+  failed=0
   for p in $plugins; do
-    if claude plugin install "$p@agent-skills" >/dev/null 2>&1; then echo "installed $p"; else echo "$p: already installed (or failed: run 'claude plugin install $p@agent-skills')"; fi
+    if grep -q "$p@$MARKETPLACE" <<<"$installed"; then echo "$p: already installed"; continue; fi
+    if out=$(claude plugin install "$p@$MARKETPLACE" 2>&1); then echo "installed $p"; else echo "$p FAILED: $out" >&2; failed=1; fi
   done
   mkdir -p "$HOME/.claude"
   touch "$HOME/.claude/CLAUDE.md"
@@ -46,4 +51,5 @@ if [[ -d $HOME/.codex && ! -e $HOME/.codex/AGENTS.md ]]; then
   ln -s "$DIR/AGENTS.md" "$HOME/.codex/AGENTS.md" && echo "linked ~/.codex/AGENTS.md"
 fi
 
+[[ ${failed:-0} == 1 ]] && { echo "some plugins failed to install (see above)" >&2; exit 1; }
 echo "done. Start a new session to load the plugins. Update later by re-running this script."

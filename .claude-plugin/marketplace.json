@@ -1,6 +1,6 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "agent-skills",
+  "name": "gjp-skills",
   "description": "Portable agent skills, guardrails and working rules.",
   "owner": {
     "name": "georgejpeters"
